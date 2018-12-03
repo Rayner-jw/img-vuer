@@ -102,10 +102,14 @@ export default {
       this.$refs.img[this.currentIndex].reset()
     },
     handlePressMove(e, el) {
-      e.preventDefault()
-      if (this.allowSwipe === false || this.isSingle) return
-      el.translateX += e.deltaX
-      this.swipeDelta += e.deltaX
+      if (e.cancelable) {
+         e.preventDefault();
+        if (this.allowSwipe === false || this.isSingle) return
+        el.translateX += e.deltaX
+        this.swipeDelta += e.deltaX
+      }
+      //e.preventDefault()
+
     },
     handleTouchStart() {
       To.stopAll()
