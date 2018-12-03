@@ -78,37 +78,40 @@ export default {
     handlePressMove(e) {
       let el = this.imgEl
       console.log(e)
-      e.preventDefault()
-      if (this.isSmall) {
-        el.translateX += e.deltaX / 3
-        el.translateY += e.deltaY / 3
-        return
+      if (e.cancelable) {
+        e.preventDefault();
+        if (this.isSmall) {
+          el.translateX += e.deltaX / 3
+          el.translateY += e.deltaY / 3
+          return
+        }
+
+        if (
+          el.scaleX / this.initialScale < 1.2 &&
+          el.scaleX / this.initialScale > 0.8
+        ) {
+          this.$emit('enableSwipe')
+          el.translateX += e.deltaX / 3
+          return
+        }
+
+        let criticalX = this.getCriticalX(el.scaleX)
+        let criticalY = this.getCriticalY(el.scaleY)
+
+        // 实现超过临界值移动速度减缓
+        let slowX = el.translateX > criticalX || el.translateX < -criticalX
+        let slowY = el.translateY > criticalY || el.translateY < -criticalY
+
+        this.$emit('disableSwipe')
+        if (slowX) {
+          el.translateX += e.deltaX / 3
+          this.$emit('enableSwipe')
+        } else el.translateX += e.deltaX
+        if (slowY) {
+          el.translateY += e.deltaY / 3
+        } else el.translateY += e.deltaY
       }
-
-      if (
-        el.scaleX / this.initialScale < 1.2 &&
-        el.scaleX / this.initialScale > 0.8
-      ) {
-        this.$emit('enableSwipe')
-        el.translateX += e.deltaX / 3
-        return
-      }
-
-      let criticalX = this.getCriticalX(el.scaleX)
-      let criticalY = this.getCriticalY(el.scaleY)
-
-      // 实现超过临界值移动速度减缓
-      let slowX = el.translateX > criticalX || el.translateX < -criticalX
-      let slowY = el.translateY > criticalY || el.translateY < -criticalY
-
-      this.$emit('disableSwipe')
-      if (slowX) {
-        el.translateX += e.deltaX / 3
-        this.$emit('enableSwipe')
-      } else el.translateX += e.deltaX
-      if (slowY) {
-        el.translateY += e.deltaY / 3
-      } else el.translateY += e.deltaY
+      //e.preventDefault()
     },
     handleTouchEnd(e) {
       let el = this.imgEl
